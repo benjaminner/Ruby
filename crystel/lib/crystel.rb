@@ -35,19 +35,6 @@ class Crystel
     end
     @value = @value[num1...num2]
   end
-  def all_upper?
-    @value == @value.upcase
-  end
-
-  def all_lower?
-    @value == @value.downcase
-  end
-  def upper?(digit)
-    @value[digit] == @value[digit].downcase
-  end
-  def lower?(digit)
-    @value[digit] == @value[digit].upcase
-  end
 end
 
 class Integer
@@ -85,5 +72,18 @@ end
 class String
   def getsjson
     JSON.parse(self)
+  end
+  def all_upper?
+    self == self.upcase
+  end
+
+  def all_lower?
+    self == self.downcase
+  end
+  def upper?(digit)
+    self[digit] == self[digit].downcase
+  end
+  def lower?(digit)
+    self[digit] == self[digit].upcase
   end
 end
