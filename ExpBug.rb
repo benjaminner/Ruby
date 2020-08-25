@@ -1,3 +1,5 @@
+List = {"M": "I ", "Mam": "I Am ", "Jy": "Happy "}
+
 class String
   def upper?
     self == self.upcase
@@ -9,8 +11,13 @@ class String
 end
 
 input = gets.chomp
+words = []
 
-input.each do |letter|
+input.each_char do |letter|
   if letter.upper?
+    words[words.length] = letter
+  else
+    words[words.length-1] += letter
   end
 end
+

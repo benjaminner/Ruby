@@ -33,7 +33,7 @@ class Crystel
     if num2 == " "
       num2 = @value.length
     end
-    @value = @value[num1...num2]
+    self.replace(@value[num1...num2])
   end
 end
 
@@ -56,6 +56,28 @@ class Integer
     end
     to_return
   end
+  def adt
+    self.additorial
+  end
+  def fct
+    self.factorial
+  end
+  def radt
+    x = 1
+    while x.adt <= self
+      x += 1
+    end
+    x -= 1
+    return "#{x} additorial is #{x.adt}. You are #{self-x.adt} off!"
+  end
+  def rfct
+    x = 1
+    while x.fct <= self
+      x += 1
+    end
+    x -= 1
+    return "#{x} factorial is #{x.fct}. You are #{self-x.fct} off!"
+  end
   def d(number)
     self.fdiv(number)
   end
@@ -67,6 +89,10 @@ class Object
       JSON.generate(self)
     end
   end
+  def from_prompt(user_input)
+    puts user_input
+    self.replace(gets.chomp)
+  end
 end
 
 class String
@@ -76,7 +102,6 @@ class String
   def all_upper?
     self == self.upcase
   end
-
   def all_lower?
     self == self.downcase
   end
@@ -86,4 +111,11 @@ class String
   def lower?(digit)
     self[digit] == self[digit].upcase
   end
+  def in(bigger_thing)
+    bigger_thing.include? self
+  end
+end 
+
+def expect(yesOrNo, test_name="Test")
+  puts "#{test_name} Passed: #{yesOrNo}"
 end
