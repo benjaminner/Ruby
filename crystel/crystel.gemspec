@@ -1,9 +1,9 @@
 Gem::Specification.new do |s|
   s.name        = 'crystel'
-  s.version     = '2.4.0'
+  s.version     = '2.5.0'
   s.licenses    = nil
   s.summary     = "Tinker Gem - Syntax Changes"
-  s.description = "This Gem is just a test. It was designed to add some Python-like functionality to Ruby as well as changing some unliked syntaxes."
+  s.description = "This Gem is just a test. It was designed to add some cool functions that I made to Ruby as well as changing some questionable syntaxes."
   s.authors     = ["Benjamin M"]
   s.email       = nil
   s.files       = ["lib/crystel.rb"]

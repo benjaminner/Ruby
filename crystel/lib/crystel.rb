@@ -114,6 +114,12 @@ class String
   def in(bigger_thing)
     bigger_thing.include? self
   end
+  def beforespace
+    self[0...self.index(" ")]
+  end
+  def afterspace
+    self[self.index(" ")+1..self.length]
+  end
 end 
 
 def expect(yesOrNo, test_name="Test")
