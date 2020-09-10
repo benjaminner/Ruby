@@ -1,4 +1,5 @@
-def execute(path)
+def execute(path, *args)
+  puts args
   load "~/Desktop/Coding/Ruby/super_computer/file/system/fxg_vars.rb"
   steps = [""]
   file = File.open(path)

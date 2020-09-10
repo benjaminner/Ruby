@@ -157,6 +157,12 @@ loop do
           else
             puts "FileError: No file `#{input_3}` under `#{dircur}`."
           end
+        when "execute"
+          if input_3.include?(" ")
+            execute
+          end
+          execute
+          
         else
           puts "CommandError: No command '#{input_2}' for file."
         end

@@ -81,6 +81,9 @@ class Integer
   def d(number)
     self.fdiv(number)
   end
+  def xx
+    puts self**self
+  end
 end
 
 class Object
@@ -120,8 +123,24 @@ class String
   def afterspace
     self[self.index(" ")+1..self.length]
   end
+  def allof(small, big)
+    at = []
+    
+  end
+  def del(*to_delete)
+    alslf = self
+    to_delete.each do |item|
+      alslf.gsub!(item, '')
+    end
+    alslf
+  end
 end 
 
 def expect(yesOrNo, test_name="Test")
   puts "#{test_name} Passed: #{yesOrNo}"
+end
+
+def raw_input(prompt)
+  print prompt
+  gets.chomp
 end
