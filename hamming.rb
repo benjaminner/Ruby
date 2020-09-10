@@ -13,13 +13,17 @@ end
 def flipbit(bit)
   $bits[bit] = !$bits[bit]
 end
-def checker
+def calc_onebits
   onebits = []
   x = 0
   $bits.each do |bit|
     onebits.push(x) if bit
     x += 1
   end
+  onebits
+end
+def checker
+  onebits = calc_onebits
   xor = 0
   onebits.each do |onebit|
     xor^=onebit
@@ -39,16 +43,17 @@ def setter
   if checker >= 1
     flipbit(1)
   end
+  onebits = calc_onebits
+  if onebits.size % 2 == 1
+    flipbit(0)
+  end
 end
 def hamming
-  onebits = []
-  x = 0
-  $bits.each do |bit|
-    onebits.push(x) if bit
-    x += 1
-  end
+  onebits = calc_onebits
   if onebits.size % 2 == 1
     flipbit(checker) if checker != 0
+  else
+    puts "Abort! Abort! Resend the data!"
   end
 end
 setter
