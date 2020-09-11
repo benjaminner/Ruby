@@ -1,6 +1,8 @@
+$number_of_bits = 16
+####################
 $bits = []
 x = 0
-while x < 16
+while x < $number_of_bits
   $bits.push(rand(2))
   x += 1
 end
@@ -31,17 +33,12 @@ def checker
   xor
 end
 def setter
-  if checker >= 8
-    flipbit(8)
-  end
-  if checker >= 4
-    flipbit(4)
-  end
-  if checker >= 2
-    flipbit(2)
-  end
-  if checker >= 1
-    flipbit(1)
+  bits_size = $number_of_bits/2
+  while bits_size > 0
+    if checker >= bits_size
+      flipbit(bits_size)
+    end
+    bits_size /= 2
   end
   onebits = calc_onebits
   if onebits.size % 2 == 1
@@ -50,18 +47,31 @@ def setter
 end
 def hamming
   onebits = calc_onebits
-  if onebits.size % 2 == 1
-    flipbit(checker) if checker != 0
+  if checker != 0
+    if onebits.size % 2 == 1
+      flipbit(checker)
+    else
+      puts "Abort! Abort! Resend the data!"
+    end
   else
-    puts "Abort! Abort! Resend the data!"
+    if onebits.size % 2 == 1
+      flipbit(0)
+    else
+      puts "No errors!"
+    end
+  end
+end
+class Array
+  def joingsub
+    self.join(', ').gsub('true', '1').gsub('false', '0').gsub(', ', '')
   end
 end
 setter
-puts $bits.join(', ')
-toflip = rand(16)
+puts $bits.joingsub
+toflip = rand($number_of_bits)
 puts("Hey, I'm flipping #{toflip}!")
 flipbit(toflip)
-puts $bits.join(', ')
+puts $bits.joingsub
 puts "Hey, I'm fixing #{checker}!"
 hamming
-puts $bits.join(', ')
+puts $bits.joingsub
