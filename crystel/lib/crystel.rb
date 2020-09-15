@@ -188,7 +188,7 @@ class Deck
     if number > @position.length + 1
       @position
     else
-      number == 0 ? [] : @position[-number..-1]
+      @position[0...number]
     end
   end
 end
