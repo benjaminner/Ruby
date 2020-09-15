@@ -144,3 +144,51 @@ def raw_input(prompt)
   print prompt
   gets.chomp
 end
+
+def range(num1, num2=0)
+  if num2 == 0
+    0...num1
+  else
+    num1...num2
+  end
+end
+class Deck
+  attr_accessor :position
+  def swap(one=rand(@position.size), two=rand(@position.size))
+    swap = @position[one]
+    @position[one] = @position[two]
+    @position[two] = swap
+    @position
+  end
+  def shuffle
+    for x in 0..200
+      swap
+    end
+    @position
+  end
+  def initialize
+    @position = []
+    ["c", "h", "s", "d"].each do |suit|
+      for card in 2..10
+        @position.push("#{card}#{suit}")
+      end
+      ["a", "j", "q", "k"].each do |card|
+        @position.push("#{card}#{suit}")
+      end
+    end
+    shuffle
+  end
+  def card_at(card)
+    @position[card]
+  end
+  def index_of(card)
+    @position.index(card)
+  end
+  def top(number)
+    if number > @position.length + 1
+      @position
+    else
+      number == 0 ? [] : @position[-number..-1]
+    end
+  end
+end
