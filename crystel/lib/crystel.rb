@@ -154,6 +154,7 @@ def range(num1, num2=0)
 end
 class Deck
   attr_accessor :position
+  attr_accessor :groups
   def swap(one=rand(@position.size), two=rand(@position.size))
     swap = @position[one]
     @position[one] = @position[two]
@@ -168,6 +169,7 @@ class Deck
   end
   def initialize
     @position = []
+    @groups = []
     ["c", "h", "s", "d"].each do |suit|
       for card in 2..10
         @position.push("#{card}#{suit}")
@@ -190,5 +192,37 @@ class Deck
     else
       @position[0...number]
     end
+  end
+  def deal(num_cards, num_hands)
+    for i in 0...num_hands
+      @groups.push(top(num_cards))
+      for x in 0...num_cards
+        @position.shift
+      end
+    end
+    self
+  end
+  def combine
+    @position.push(@groups.flatten).flatten!
+    @groups = []
+    self
+  end
+  def deal_in
+    combine
+  end
+end
+class EukerDeck < Deck
+  def initialize
+    @position = []
+    @groups = []
+    ["c", "h", "s", "d"].each do |suit|
+      for card in 9..10
+        @position.push("#{card}#{suit}")
+      end
+      ["a", "j", "q", "k"].each do |card|
+        @position.push("#{card}#{suit}")
+      end
+    end
+    shuffle
   end
 end
