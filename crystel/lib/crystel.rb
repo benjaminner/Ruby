@@ -159,13 +159,13 @@ class Deck
     swap = @position[one]
     @position[one] = @position[two]
     @position[two] = swap
-    @position
+    self
   end
   def shuffle
     for x in 0..200
       swap
     end
-    @position
+    self
   end
   def initialize
     @position = []
@@ -210,16 +210,26 @@ class Deck
   def deal_in
     combine
   end
+  def group_no(group, top_no, place, placein=1)
+    if (1..@groups.length).include?(place)
+      @groups[place-1].insert(placein-1, @groups[group-1][0...top_no]).flatten!
+      @groups[group-1][0...top_no].each do |card|
+        @groups[group-1].delete(card)
+      end
+    else
+      @position.insert(placein-1, @groups[group-1][0...top_no]).flatten!
+      @groups[group-1][0...top_no].each do |card|
+        @groups[group-1].delete(card)
+      end
+    end
+  end
 end
 class EukerDeck < Deck
   def initialize
     @position = []
     @groups = []
     ["c", "h", "s", "d"].each do |suit|
-      for card in 9..10
-        @position.push("#{card}#{suit}")
-      end
-      ["a", "j", "q", "k"].each do |card|
+      [9, 10, "a", "j", "q", "k"].each do |card|
         @position.push("#{card}#{suit}")
       end
     end
