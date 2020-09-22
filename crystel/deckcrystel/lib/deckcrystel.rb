@@ -82,3 +82,43 @@ class EukerDeck < Deck
     shuffle
   end
 end
+class ExplodingDeck < Deck
+  def initialize
+    @position = []
+    @groups = []
+    ['exp', 'fvr', 'shf', 'atk', 'skp', 'tac', 'mlc', 'bdc', 'rrc', 'hpc'].each do |card|
+      for x in 0...4
+        @position.push(card)
+      end
+    end
+    ['nop', 'fut'].each do |card|
+      for x in 0...5
+        @position.push(card)
+      end
+    end
+    for x in 0...6
+      @position.push('def')
+    end
+    shuffle
+  end
+  def deal(hands)
+    deal_in
+    @groups = []
+    @position.delete('def')
+    @position.delete('exp')
+    for x in 0...hands
+      @groups.push([])
+      @groups[x].push('def')
+      for y in 0...7
+        @groups[x].push(@position.shift)
+      end
+    end
+    for x in 0...(6-hands)
+     @position.insert(rand(@position.size), 'def')
+    end
+    for x in 0...(hands-1)
+    @position.insert(rand(@position.size), 'exp')
+    end
+    self
+  end
+end
