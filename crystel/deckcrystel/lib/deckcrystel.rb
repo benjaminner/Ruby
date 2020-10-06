@@ -122,3 +122,36 @@ class ExplodingDeck < Deck
     self
   end
 end
+class CribbageDeck < Deck
+  def deal(num_players)
+    case num_players
+    when 2
+      for x in 0...3
+        if (1...3).include?(x)
+          x = top(6)
+          (0...6).each do 
+            @position.shift
+          end
+        else
+          x = []
+        end
+        @groups.push(x)
+      end
+    when 3
+      for x in 0...4
+        if (1...3).include?(x)
+          x = top(5)
+          (0...5).each do 
+            @position.shift
+          end
+        else
+          x = [@position[0]]
+        end
+        @groups.push(x)
+      end
+    end
+    self
+  end
+end
+class CribDeck < CribbageDeck 
+end

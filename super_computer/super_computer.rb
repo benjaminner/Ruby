@@ -1,7 +1,7 @@
-load "../crystel/lib/crystel.rb"
-load "./file/system/read_fxg.rb"
+require 'crystel'
+load "~/Desktop/Coding/Ruby/super_computer/file/system/read_fxg.rb"
 require 'open-uri'
-sysfile = "./file/system/sys-info.json"
+sysfile = "/Users/ben/Desktop/Coding/Ruby/super_computer/file/system/sys-info.json"
 file = File.open(sysfile)
 sysinfo = file.read.getsjson
 version = sysinfo["version"]

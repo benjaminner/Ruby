@@ -134,10 +134,14 @@ class String
     end
     alslf
   end
+  def join(str)
+    self.split('').join(str)
+  end
 end 
 
-def expect(yesOrNo, test_name="Test")
-  puts "#{test_name} Passed: #{yesOrNo}"
+def expect(yesOrNo, test_name="Test", raise_error=false)
+  puts "#{test_name} Passed: #{yesOrNo}" if yesOrNo
+  raise RuntimeError, "Failed test: #{test_name}" if not yesOrNo and raise_error
 end
 
 def raw_input(prompt)
@@ -152,6 +156,7 @@ def range(num1, num2=0)
     num1...num2
   end
 end
+
 class Deck
   attr_accessor :position
   attr_accessor :groups
@@ -240,3 +245,23 @@ class EukerDeck < Deck
     shuffle
   end
 end
+class ExplodingDeck < Deck
+  def initialize
+    @position = []
+    @groups = []
+    ['exp', 'fvr', 'shf', 'atk', 'skp', 'tac', 'mlc', 'bdc', 'rrc', 'hpc'].each do |card|
+      for x in 0...4
+        @position.push(card)
+      end
+    end
+    ['nop', 'fut'].each do |card|
+      for x in 0...5
+        @position.push(card)
+      end
+    end
+    for x in 0...6
+      @position.push('def')
+    end
+    shuffle
+  end
+end end
