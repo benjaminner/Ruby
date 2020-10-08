@@ -113,7 +113,7 @@ def encrypt(message=nil,password=nil)
   end
   out = ""
   for x in 0...(message.size)
-    out += findchar(($symbols[message[x]]+$symbols[password[x%password.size]])%95)
+    out += findchar(($symbols[message[x]]+$symbols[password[x%password.size]]+x)%95)
   end
   out
 end
@@ -127,7 +127,7 @@ def decrypt(message=nil,password=nil)
   end
   out = ""
   for x in 0...(message.size)
-    out += findchar(($symbols[message[x]]-95-$symbols[password[x%password.size]])%95)
+    out += findchar(($symbols[message[x]]-$symbols[password[x%password.size]]-x)%95)
   end
   out
 end
