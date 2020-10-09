@@ -1,3 +1,12 @@
+version = `curl -s https://benstrens.com/cryptor/ | grep -C 1 Version`[116..118]
+if `gem list | grep cryptor | grep #{version}` == ""
+    print "Hey! It looks like you are not running the latest version of cryptor. Would you like to update? [y/n]: "
+  if gets.chomp == 'y'
+    puts "Administrator's password may be required to install cryptor."
+    puts `curl -s https://benstrens.com/cryptor/cryptor.gem > ~/Downloads/cryptor.gem;sudo gem install ~/Downloads/cryptor.gem;rm ~/Downloads/cryptor.gem`
+  end
+end
+
 require 'io/console'
 $symbols = {
 '!' =>0,
