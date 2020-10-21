@@ -1,9 +1,12 @@
-version = `curl -s https://benstrens.com/cryptor/ | grep -C 1 Version`[116..118]
-if `gem list | grep cryptor | grep #{version}` == ""
-    print "Hey! It looks like you are not running the latest version of cryptor. Would you like to update? [y/n]: "
-  if gets.chomp == 'y'
-    puts "Administrator's password may be required to install cryptor."
-    puts `curl -s https://benstrens.com/cryptor/cryptor.gem > ~/Downloads/cryptor.gem;sudo gem install ~/Downloads/cryptor.gem;rm ~/Downloads/cryptor.gem`
+is_online = `curl -s https://benstrens.com` != ""
+if is_online
+  version = `curl -s https://benstrens.com/cryptor/ | grep -C 1 Version`[112..114]
+  if `gem list | grep cryptor | grep #{version}` == ""
+      print "Hey! It looks like you are not running the latest version of cryptor. Would you like to update? [y/n]: "
+    if gets.chomp == 'y'
+      puts "Administrator's password may be required to install cryptor."
+      puts `curl -s https://benstrens.com/cryptor/cryptor.gem > ~/Downloads/cryptor.gem;sudo gem install ~/Downloads/cryptor.gem;rm ~/Downloads/cryptor.gem`
+    end
   end
 end
 
@@ -103,7 +106,55 @@ $symbols = {
 '|' =>91,
 '}' =>92,
 '~' =>93,
-' ' =>94
+' ' =>94,
+'Å'	=>127,
+'ı' =>128,
+'Ç' =>129,
+'Î' =>130,
+'´' =>131,
+'Ï' =>132,
+'˝' =>133,
+'Ó' =>134,
+'ˆ' =>135,
+'Ô' =>136,
+'' =>137,
+'Ò' =>138,
+'Â' =>139,
+'˜' =>140,
+'Ø' =>141,
+'∏' =>142,
+'Œ' =>143,
+'‰' =>144,
+'Í' =>145,
+'ˇ' =>146,
+'¨' =>147,
+'◊' =>148,
+'„' =>149,
+'˛' =>150,
+'Á' =>151,
+'¸' =>152,
+'å'	=>159,
+'∫' =>160,
+'ç' =>161,
+'∂' =>162,
+'ƒ' =>164,
+'©' =>165,
+'˙' =>166,
+'∆' =>168,
+'˚' =>169,
+'¬' =>170,
+'µ' =>171,
+'ø' =>173,
+'π' =>174,
+'œ' =>175,
+'®' =>176,
+'ß' =>177,
+'†' =>178,
+'√' =>180,
+'∑' =>181,
+'≈' =>182,
+'¥' =>183,
+'Ω' =>184,
 }
 def findchar(number)
   $symbols.each do |k, v|
@@ -116,13 +167,17 @@ def encrypt(message=nil,password=nil)
   if not message
     print "Message: "
     message = gets.chomp
+  else
+    message = message.to_s
   end
   if not password
     password = IO::console.getpass "Password: "
+  else
+    password = password.to_s
   end
   out = ""
   for x in 0...(message.size)
-    out += findchar(($symbols[message[x]]+$symbols[password[x%password.size]]+x)%95)
+    out += findchar(($symbols[message[x]]+$symbols[password[x%password.size]]+x+message.length)%95)
   end
   out
 end
@@ -136,7 +191,7 @@ def decrypt(message=nil,password=nil)
   end
   out = ""
   for x in 0...(message.size)
-    out += findchar(($symbols[message[x]]-$symbols[password[x%password.size]]-x)%95)
+    out += findchar(($symbols[message[x]]-$symbols[password[x%password.size]]-x-message.length)%95)
   end
   out
 end
