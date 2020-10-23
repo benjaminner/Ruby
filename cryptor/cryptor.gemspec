@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'cryptor'
-  s.version     = '1.3'
+  s.version     = '1.4'
   s.summary     = "encrypt and decrypt"
   s.description = "encrypt and decrypt"
   s.authors     = ["Benjamin M"]
