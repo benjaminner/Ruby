@@ -128,6 +128,22 @@ aSCII = {
 '~'=> '1111110',
 'å'=> '1111111'
 }
+replacors = {
+'a'=>'000',
+'b'=>'001',
+'c'=>'010',
+'d'=>'011',
+'e'=>'100',
+'f'=>'101',
+'g'=>'110',
+'h'=>'111',
+'i'=>'00',
+'j'=>'01',
+'k'=>'10',
+'l'=>'11'
+}
+ht = {}
+
 print 'Enter the text here: '
 text = gets.chomp
 class String
@@ -137,35 +153,31 @@ class String
 end
 text = text.split('∏')
 numbers = ''
-text[1].each_char do |char|
+text[2].each_char do |char|
   numbers+=aSCII[char]
 end
-numbers+=text[2]
-ht = text[0].split('[')
+numbers+=text[3] if text[3] != nil
+textOne = text[1].split(',')
 x = 0
-ht.each do |element|
-  if element == ""
-    ht[x] = '['
+text[0].each_char do |char|
+  replacors.each do |k,v|
+    textOne[x].gsub!(k,v)
   end
-  ht[x]=element.split(']')
-  x+=1
+  ht[textOne[x]] = char
+  x += 1
 end
-puts ht.to_s
+
 ###DECODING###
-read = 0
-length = 0
-decoded = ""
-numbers.each_char do |number|
-  length += 1
-  number = number.to_i
-  currentSel = ht
-  for x in 0...length
-    currentSel = currentSel[numbers[x+read].to_i]
-  end
-  if currentSel.class == String
-    decoded += currentSel
-    read = length+read
-    length = 0
+
+decoded = ''
+#until numbers.length == 0
+for x in 0...(numbers.length/3)
+  ht.each do |k,v|
+    if numbers.start_with?(k)
+      decoded+=v
+      numbers=numbers[k.length...numbers.length]
+    end
   end
 end
+
 puts decoded

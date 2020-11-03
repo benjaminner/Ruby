@@ -128,6 +128,21 @@ aSCII = {
 '1111110'=> '~',
 '1111111'=> 'å'
 }
+replacors = {
+  '000'=>'a',
+  '001'=>'b',
+  '010'=>'c',
+  '011'=>'d',
+  '100'=>'e',
+  '101'=>'f',
+  '110'=>'g',
+  '111'=>'h',
+  '00'=>'i',
+  '01'=>'j',
+  '10'=>'k',
+  '11'=>'l'
+}
+
 
 def start()
   print 'Enter the text here: '
@@ -170,29 +185,33 @@ end
 ht = start()
 text = ht[1]
 ht = ht[0]
-if ht.length != 1
-  vals = Array.new(text.length,'')
-  letternumber = 0
-  text.each_char do |letter|
-    htree = ht
-    while htree.class == Array
-      zero = htree[0]
-      one = htree[1]
-      if zero.flatten.include?(letter)
-        htree = zero
-        vals[letternumber] += '0'
+def enc(text, ht)
+  if ht.length != 1
+    vals = Array.new(text.length,'')
+    letternumber = 0
+    text.each_char do |letter|
+      htree = ht
+      while htree.class == Array
+        zero = htree[0]
+        one = htree[1]
+        if zero.flatten.include?(letter)
+          htree = zero
+          vals[letternumber] += '0'
+        end
+        if one.flatten.include?(letter)
+          htree = one
+          vals[letternumber] += '1'
+        end
       end
-      if one.flatten.include?(letter)
-        htree = one
-        vals[letternumber] += '1'
-      end
+      letternumber += 1
     end
-    letternumber += 1
+    vals = vals.join
+  else
+    vals = "0"*text.length
   end
-  vals = vals.join
-else
-  vals = "0"*text.length
+  return vals
 end
+vals = enc(text, ht)
 leftovers = ''
 x = 1
 chars = ""
@@ -208,8 +227,19 @@ vals.each_char do |bit|
 end
 vals = ''
 charbits.each do |byte|
-  #puts byte
   vals+=(aSCII[byte])
 end
-ht = ht.to_s
-puts "#{ht[1...ht.length-1]}∏#{vals}∏#{chars}"
+valuess = []
+ht.flatten.each do |letter|
+  valuess.push(enc(letter, ht))
+end
+x = 0
+valuess.each do |value|
+  replacors.keys.each do |valO|
+    if value.include?(valO)
+      valuess[x].gsub!(valO,replacors[valO])
+    end
+  end
+  x+=1
+end
+puts "#{ht.flatten.join}∏#{valuess.join(',')}∏#{vals}∏#{chars}"
