@@ -129,19 +129,41 @@ aSCII = {
 '1111111'=> 'å'
 }
 replacors = {
-  '000'=>'a',
-  '001'=>'b',
-  '010'=>'c',
-  '011'=>'d',
-  '100'=>'e',
-  '101'=>'f',
-  '110'=>'g',
-  '111'=>'h',
-  '00'=>'i',
-  '01'=>'j',
-  '10'=>'k',
-  '11'=>'l'
+  '0000'=>'a',
+  '0001'=>'b',
+  '0010'=>'c',
+  '0011'=>'d',
+  '0100'=>'e',
+  '0101'=>'f',
+  '0110'=>'g',
+  '0111'=>'h',
+  '1000'=>'i',
+  '1001'=>'j',
+  '1010'=>'k',
+  '1011'=>'l',
+  '1100'=>'m',
+  '1101'=>'n',
+  '1110'=>'o',
+  '1111'=>'p',
+   '000'=>'q',
+   '001'=>'r',
+   '010'=>'s',
+   '011'=>'t',
+   '100'=>'w',
+   '101'=>'x',
+   '110'=>'y',
+   '111'=>'z',
+    '00'=>'A',
+    '01'=>'B',
+    '10'=>'C',
+    '11'=>'D'
 }
+
+aSCII.each do |k,v|
+  if not replacors.values.include?(v) and v != ',' and v != '0' and v != '1'
+    replacors = {k=>v}.merge(replacors)
+  end
+end
 
 
 def start()
@@ -177,14 +199,6 @@ def start()
 end
 
 ###PROGRAM 2###
-class String
-  def flatten
-    return self
-  end
-end
-ht = start()
-text = ht[1]
-ht = ht[0]
 def enc(text, ht)
   if ht.length != 1
     vals = Array.new(text.length,'')
@@ -211,28 +225,43 @@ def enc(text, ht)
   end
   return vals
 end
-vals = enc(text, ht)
-leftovers = ''
-x = 1
-chars = ""
-charbits = []
-vals.each_char do |bit|
-  if x % 8 == 0
-    charbits.push(chars)
-    chars = ""
-  else
-    chars += bit
+class String
+  def flatten
+    return self
   end
-  x += 1
 end
+ht = start()
+text = ht[1]
+ht = ht[0]
+
+valuess = []
+values2 = ht.flatten
+ht.flatten.each do |letter|
+  valuess.push(enc(letter, ht))
+end
+ht = {}
+x = 0
+values2.each do |item|
+  ht[item] = valuess[x]
+  x+=1
+end
+
+
+vals = ''
+text.each_char do |char|
+  vals+=ht[char]
+end
+
+
+leftovers = ''
+x = 0
+charbits = vals.scan(/.{1,7}/)
+chars = charbits.pop
 vals = ''
 charbits.each do |byte|
   vals+=(aSCII[byte])
 end
-valuess = []
-ht.flatten.each do |letter|
-  valuess.push(enc(letter, ht))
-end
+
 x = 0
 valuess.each do |value|
   replacors.keys.each do |valO|
@@ -242,4 +271,4 @@ valuess.each do |value|
   end
   x+=1
 end
-puts "#{ht.flatten.join}∏#{valuess.join(',')}∏#{vals}∏#{chars}"
+puts "#{values2.join}∏#{valuess.join(',')}∏#{vals}∏#{chars}"

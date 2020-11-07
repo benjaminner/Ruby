@@ -129,20 +129,44 @@ aSCII = {
 'å'=> '1111111'
 }
 replacors = {
-'a'=>'000',
-'b'=>'001',
-'c'=>'010',
-'d'=>'011',
-'e'=>'100',
-'f'=>'101',
-'g'=>'110',
-'h'=>'111',
-'i'=>'00',
-'j'=>'01',
-'k'=>'10',
-'l'=>'11'
+  'a'=>'0000',
+  'b'=>'0001',
+  'c'=>'0010',
+  'd'=>'0011',
+  'e'=>'0100',
+  'f'=>'0101',
+  'g'=>'0110',
+  'h'=>'0111',
+  'i'=>'1000',
+  'j'=>'1001',
+  'k'=>'1010',
+  'l'=>'1011',
+  'm'=>'1100',
+  'n'=>'1101',
+  'o'=>'1110',
+  'p'=>'1111',
+  'q'=> '000',
+  'r'=> '001',
+  's'=> '010',
+  't'=> '011',
+  'w'=> '100',
+  'x'=> '101',
+  'y'=> '110',
+  'z'=> '111',
+  'A'=> '00',
+  'B'=> '01',
+  'C'=> '10',
+  'D'=> '11'
 }
 ht = {}
+
+
+aSCII.each do |k,v|
+  if not replacors.keys.include?(k) and k != ',' and k != '0' and k != '1'
+    replacors = {k=>v}.merge(replacors)
+  end
+end
+
 
 print 'Enter the text here: '
 text = gets.chomp
@@ -170,7 +194,6 @@ end
 ###DECODING###
 
 decoded = ''
-#until numbers.length == 0
 for x in 0...(numbers.length/3)
   ht.each do |k,v|
     if numbers.start_with?(k)
