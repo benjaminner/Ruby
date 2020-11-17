@@ -28,23 +28,19 @@ def execute(path, *args)
       end
     end
   end
-  
+
   steps.each do |step|
     if step.start_with?(">")
       steps[steps.index(step)] = steps[steps.index(step)][1..step.length]
     end
   end
 
-  puts steps
-  
+  #puts steps
+
   cx = 0
   condat = []
   while cx < steps.size
     step = steps[cx]
-    puts step.lowercase
-    puts $d
-    puts $e
-    puts $f
     if step.start_with?("?")
       print "? "
       input = gets.chomp
@@ -67,7 +63,7 @@ def execute(path, *args)
       if (/[A-Z]>[A-Z]/ =~ step) != nil
         conditional = true
       end
-      
+
       if conditional
         unless eval(step.lowercase)
           cx += 1
