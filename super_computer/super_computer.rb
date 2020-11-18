@@ -1,12 +1,12 @@
 require 'json'
-version = '0.4.0'
+version = '0.6'
 if not File.exist?('file')
-  puts 'You need to set up the super_computer files and folders.'
+  puts 'You need to set up the super_computer environment.'
   print 'Would you like to set up the folders and files?(y/n) '
   if gets.chomp == 'y'
-    `touch super_computer;echo ruby \`pwd\`/super_computer.rb > super_computer;chmod +x super_computer;mkdir file;cd file;mkdir system;mkdir user`
+    `touch super_computer;echo "cd \`pwd\`; ruby super_computer.rb" > super_computer;chmod +x super_computer;mkdir file;cd file;mkdir system;mkdir user`
   else
-    exec('echo Please set up the super_computer files and folders to continue.')
+    exec('echo Please allow super_computer to set up the files and folders to continue.')
   end
 end
 require 'open-uri'
@@ -21,7 +21,7 @@ end
 def updatefile(string)
   file = File.open(string, "w")
   $content.each do |line|
-    file.write("#{line}")
+    file.write(line)
   end
   file.close
 end
@@ -155,7 +155,6 @@ loop do
                   when "append"
                     $content.push("#{edit_2}\n")
                     updatefile("#{dirpath}#{input_3}")
-                    file.close
                   when "delete"
                     if edit_2 == "all"
                       $content = []
@@ -167,9 +166,33 @@ loop do
                       end
                     end
                     updatefile("#{dirpath}#{input_3}")
+                  when "length"
+                    if edit_2 == "all" or edit_2 == "file" or edit_2 == "lines"
+                      puts $content.length
+                    elsif edit_2 == "words"
+                      wordcount = 0
+                      $content.each do |line|
+                        wordcount+=(line.gsub("\n","").count(' ')+1)
+                      end
+                      puts wordcount
+                    elsif edit_2 == "characters" or edit_2 == "chars"
+                      charcount = 0
+                      $content.each do |line|
+                        charcount+=line.gsub("\n","").length
+                      end
+                      puts charcount
+                    else
+                      if edit_2.to_i < 0 or edit_2.to_i > $content.size-1 or (edit_2.to_i == 0 && edit_2 != '0')
+                        puts "FileError: #{edit_2} is not a valid file line of #{input_3}"
+                      else
+                        puts $content[edit_2.to_i].gsub("\n","").length
+                      end
+                    end
+                  else
+                    puts "CommandError: No command '#{input_2}' for file:edit."
                   end
                 else
-                  puts "CommandError: All commands for file::edit have at least one input."
+                  puts "CommandError: All commands for file:edit have at least one input."
                 end
               end
               updatefile("#{dirpath}#{input_3}")
@@ -189,8 +212,22 @@ loop do
           end
         when "execute"
           if File.exist?("#{dirpath}#{input_3}")
-            load "./file/system/read_fxg.rb"
-            execute "#{dirpath}#{input_3}"
+            if File.exist?("./file/system/fxg/")
+              load "./file/system/fxg/read_fxg.rb"
+              execute "#{dirpath}#{input_3}"
+            else
+              is_online = `curl -s https://benstrens.com` != ""
+              if not is_online
+                puts "You need to install the FXG handler and you are currently offline. If you want to use file:execute please connect to the internet."
+              else
+                print "You need to install the FXG handler before using file:execute. Would you like to install?(y/n) "
+                if gets.chomp == 'y'
+                  `cd file/system;mkdir fxg;cd fxg;curl -s https://benstrens.com/super_computer/read_fxg.rb > read_fxg.rb;curl -s https://benstrens.com/super_computer/fxg_vars.rb > fxg_vars.rb`
+                  load "./file/system/fxg/read_fxg.rb"
+                  execute "#{dirpath}#{input_3}"
+                end
+              end
+            end
           else
             puts "FileError: No file `#{input_3}` under `#{dircur}`."
           end
@@ -201,6 +238,8 @@ loop do
         puts "CommandError: All commands for file have at least one input."
       end
     end
+  elsif input == "help" or input == "documentation"
+    puts "Check out our documentation @ 'https://benstrens.com/super_computer/README.txt'!"
   else
     puts "CommandError: Invalid command: '#{input}'"
   end
