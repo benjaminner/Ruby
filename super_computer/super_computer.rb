@@ -1,17 +1,33 @@
 require 'json'
-version = '0.6'
+require 'open-uri'
+require 'date'
+version = '1.3.2'
+versionName = 'pumpkin'
+is_online = `curl -s https://benstrens.com` != ""
+if is_online
+  webversion = /[0-9]\.[0-9]\.[0-9]/.match(`curl -s https://benstrens.com/super_computer/`)
+  webversion = /[0-9]\.[0-9]/.match(`curl -s https://benstrens.com/super_computer/`) if webversion == nil
+  webversion = webversion[0]
+  if webversion != version
+    `curl -s https://benstrens.com/super_computer/super_computer.rb > super_computer.rb`
+    exec('ruby super_computer.rb')
+  end
+end
 if not File.exist?('file')
   puts 'You need to set up the super_computer environment.'
   print 'Would you like to set up the folders and files?(y/n) '
   if gets.chomp == 'y'
-    `touch super_computer;echo "cd \`pwd\`; ruby super_computer.rb" > super_computer;chmod +x super_computer;mkdir file;cd file;mkdir system;mkdir user`
+    `touch super_computer;echo "cd \`pwd\`; ruby super_computer.rb" > super_computer;chmod +x super_computer;mkdir file;cd file;mkdir user;mkdir system;cd system;touch prompt.txt;echo '*D>' > prompt.txt`
   else
     exec('echo Please allow super_computer to set up the files and folders to continue.')
   end
 end
-require 'open-uri'
+if not File.exist?('./file/system/prompt.txt')
+  `cd file/system;touch prompt.txt;echo '*D>' > prompt.txt`
+end
 dircur = "/file/user"
-puts "super_computer.rb[#{version}]"
+puts "super_computer.rb"
+puts "scos #{versionName} (#{version})"
 def beforespace(input)
   input[0...input.index(" ")]
 end
@@ -25,22 +41,31 @@ def updatefile(string)
   end
   file.close
 end
+def dt
+  DateTime.now
+end
+counts = 1
+toprintf = File.open('./file/system/prompt.txt')
+toprint = toprintf.readline.gsub("\n",'')
+toprintf.close
 loop do
+  toprinted = dt.strftime(toprint).gsub('*D',dircur).gsub('*C',counts.to_s).gsub('*V',version)
   dirpath = ".#{dircur}/"
-  print "#{dircur}> "
-  input = gets.chomp
+  print "#{toprinted} "
+  input_4 = gets.chomp
+  input = input_4.downcase
 
-  break if input == "quit"
-  break if input == ""
+  break if input.include? "quit" or input == "" or input.include? "exit"
 
   if input.include? " "
+    input_a = beforespace(input)
     input_2 = afterspace(input)
-    if beforespace(input) == "dir"
+    if input_a == "dir"
       if input_2.include?(" ")
         input_3 = afterspace(input_2)
         if beforespace(input_2) == "create"
           unless dircur == "/file" or dircur.include?("/file/system")
-            `cd #{dirpath};mkdir #{input_3}`
+            Dir.mkdir("#{dirpath}#{input_3}")
             puts "Made directory `#{input_3}` under `#{dircur}`."
           else
             puts "DirectoryError: Cannot create or delete directories under `/file` or `/file/system`."
@@ -48,18 +73,18 @@ loop do
         elsif beforespace(input_2) == "delete"
           unless dircur == "/file" or dircur.include?("/file/system")
             if File.exist?("#{dirpath}#{input_3}/")
-              if `cd #{dirpath}#{input_3};ls` == ""
-                `cd #{dirpath};rmdir #{input_3}`
+              if Dir["#{dirpath}#{input_3}/*"] == []
+                Dir.delete("#{dirpath}#{input_3}")
                 puts "Deleted directory `#{input_3}`."
               else
-                puts `cd #{dirpath}#{input_3};ls`
+                puts Dir["#{dirpath}#{input_3}/*"].join("\n").gsub("#{dirpath}#{input_3}/",'')
                 print "The files above will be deleted. Are you sure?(y/n) "
                 if gets.chomp == 'y'
                   puts 'deleting...'
-                  `cd #{dirpath}#{input_3};ls`.split("\n").each do |file|
-                    File.delete("#{dirpath}#{input_3}/#{file}")
+                  Dir["#{dirpath}#{input_3}/*"].each do |file|
+                    File.delete(file)
                   end
-                  `rmdir #{dirpath}#{input_3}`
+                  Dir.delete("#{dirpath}#{input_3}")
                 end
               end
             else
@@ -92,12 +117,13 @@ loop do
           puts "DirectoryError: Cannot find parent directory of `/file`."
         end
       elsif input_2 == "list"
-        puts `cd #{dirpath};ls`
+        puts Dir["#{dirpath}#{input_3}/*"].join("\n").gsub("#{dirpath}#{input_3}/",'')
+      elsif input_2 == "cur"
+        puts dircur
       else
         puts "CommandError: No command '#{input_2}' for dir."
       end
-    end
-    if beforespace(input) == "file"
+    elsif input_a == "file"
       if input_2.include? " "
         input_3 = afterspace(input_2)
         input_2 = beforespace(input_2)
@@ -105,7 +131,7 @@ loop do
         case input_2
         when "create"
           unless dircur == "/file" or dircur.include?("/file/system")
-            `cd #{dirpath};touch #{input_3}`
+            File.new("#{dirpath}/#{input_3}",'w')
             puts "Made file `#{input_3}` under `#{dircur}`."
           else
             puts "FileError: Cannot create, delete, or edit files under `/file` or `/file/system`."
@@ -113,7 +139,7 @@ loop do
         when "delete"
           if File.exist?("#{dirpath}#{input_3}")
             unless dircur == "/file" or dircur.include?("/file/system")
-              `cd #{dirpath};rm #{input_3}`
+              File.delete("#{dirpath}#{input_3}")
               puts "Deleted file `#{input_3}`."
             else
               puts "FileError: Cannot create, delete, or edit files under `/file` or `/file/system`."
@@ -134,8 +160,7 @@ loop do
               loop do
                 print "#{input_3}> "
                 edit = gets.chomp
-                break if edit == "quit"
-                break if edit == ""
+                break if input.include? "quit" or input == "" or input.include? "exit"
                 if edit.include? " "
                   edit_2 = afterspace(edit)
                   edit = beforespace(edit)
@@ -237,10 +262,36 @@ loop do
       else
         puts "CommandError: All commands for file have at least one input."
       end
+    elsif input_a == "system"
+      if input_2 == "time"
+        puts dt.strftime('%I:%M:%S %p')
+      elsif input_2 == "time 24h"
+        puts dt.strftime('%H:%M:%S')
+      elsif input_2 == "time zone"
+        puts "#{dt.strftime('%Z')} #{Time.now.getlocal.zone}"
+      elsif input_2 == "date"
+        puts dt.strftime('%A, %B %d, %Y')
+      elsif input_2 == "date short"
+        puts dt.strftime('%Y/%m/%d')
+      elsif input_2 == "current prompt"
+        puts toprint
+      elsif beforespace(input_2) == "prompt" && input_2.include?(' ')
+        file = File.open("./file/system/prompt.txt",'w')
+        file.write(afterspace(afterspace(input_4)))
+        file.close
+        toprint = afterspace(afterspace(input_4))
+      else
+        puts "CommandError: No command '#{input_2}' for system."
+      end
+    else
+      puts "CommandError: Invalid command: '#{input_a}'"
     end
   elsif input == "help" or input == "documentation"
     puts "Check out our documentation @ 'https://benstrens.com/super_computer/README.txt'!"
+  elsif input == "dir" or input == "file" or input == "system"
+    puts "CommandError: No command for #{input} given."
   else
-    puts "CommandError: Invalid command: '#{input}'"
+    puts "CommandError: Invalid command: '#{input_4}'"
   end
+  counts+=1
 end
