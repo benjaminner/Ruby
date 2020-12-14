@@ -17,13 +17,21 @@ if not File.exist?('file')
   puts 'You need to set up the super_computer environment.'
   print 'Would you like to set up the folders and files?(y/n) '
   if gets.chomp == 'y'
-    `touch super_computer;echo "cd \`pwd\`; ruby super_computer.rb" > super_computer;chmod +x super_computer;mkdir file;cd file;mkdir user;mkdir system;cd system;touch prompt.txt;echo '*D>' > prompt.txt`
+    `touch super_computer;echo "cd \`pwd\`; ruby super_computer.rb" > super_computer;chmod +x super_computer;mkdir file;cd file;mkdir user;mkdir system`
   else
     exec('echo Please allow super_computer to set up the files and folders to continue.')
   end
 end
 if not File.exist?('./file/system/prompt.txt')
   `cd file/system;touch prompt.txt;echo '*D>' > prompt.txt`
+end
+if not File.exist?('./file/system/alias.txt')
+  `cd file/system;touch prompt.txt`
+  file = File.open('./file/system/alias.txt','w')
+  file.puts '['
+  file.puts ''
+  file.puts ']'
+  file.close
 end
 dircur = "/file/user"
 puts "super_computer.rb"
@@ -48,6 +56,10 @@ counts = 1
 toprintf = File.open('./file/system/prompt.txt')
 toprint = toprintf.readline.gsub("\n",'')
 toprintf.close
+aliases = []
+file = File.open('./file/system/alias.txt')
+  aliases = JSON.parse(file.readline)
+file.close
 loop do
   toprinted = dt.strftime(toprint).gsub('*D',dircur).gsub('*C',counts.to_s).gsub('*V',version)
   dirpath = ".#{dircur}/"
@@ -56,6 +68,16 @@ loop do
   input = input_4.downcase
 
   break if input.include? "quit" or input == "" or input.include? "exit"
+
+  aliases.each do |aliass|
+    puts aliass
+    aliass = JSON.parse(aliass)
+    matcher = /(\A#{aliass[0]} )|( #{aliass[0]} )|( #{aliass[0]}\z)|(\A#{aliass[0]}\z)/
+    matched = matcher.match(input)
+    if matched
+      input.gsub!(matched[0],matched[0].gsub(aliass[0],aliass[1]))
+    end
+  end
 
   if input.include? " "
     input_a = beforespace(input)
@@ -97,7 +119,7 @@ loop do
           if File.exist?("#{dirpath}#{input_3}/")
             dircur += "/#{input_3}"
           else
-            puts "DirectoryError: No directory `#{beforespace(input_2)}` under `#{dircur}`."
+            puts "DirectoryError: No directory `#{afterspace(input_2)}` under `#{dircur}`."
           end
         else
           puts "CommandError: No command '#{beforespace(input_2)}' for dir."
@@ -280,6 +302,26 @@ loop do
         file.write(afterspace(afterspace(input_4)))
         file.close
         toprint = afterspace(afterspace(input_4))
+      elsif beforespace(input_2) == "alias"
+        array = afterspace(input_2).split('=')
+        file = File.open('./file/system/alias.txt')
+        filelines = file.readlines
+        file.close
+        file = File.open('./file/system/alias.txt','w')
+        file.write(filelines.insert(filelines.length-1,array.to_s))
+        file.close
+        aliases += array
+      elsif input_2 == "list aliases"
+        aliases.each do |aliaso|
+          puts JSON.parse(aliaso).join('=>')
+        end
+      elsif input_2 == "delete aliases"
+        print 'Are you sure? This action cannot be undone! (y/n) '
+        if gets.chomp == 'y'
+          aliases = []
+          file = File.open('./file/system/alias.txt','w')
+          file.close
+        end
       else
         puts "CommandError: No command '#{input_2}' for system."
       end

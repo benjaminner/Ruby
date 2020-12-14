@@ -168,8 +168,13 @@ aSCII.each do |k,v|
 end
 
 
-print 'Enter the text here: '
-text = gets.chomp
+print 'Enter the absoulte file path here: '
+name=gets.chomp
+
+file = File.open(name)
+text = file.readlines.join
+file.close
+
 class String
   def flatten
     return self
@@ -194,7 +199,7 @@ end
 ###DECODING###
 
 decoded = ''
-for x in 0...(numbers.length/3)
+for x in 0...(numbers.length)
   ht.each do |k,v|
     if numbers.start_with?(k)
       decoded+=v
@@ -203,4 +208,18 @@ for x in 0...(numbers.length/3)
   end
 end
 
-puts decoded
+
+print 'Would you like to save the results to a file?(y/n) '
+if gets.chomp == 'y'
+  print 'Enter the filename you would like to save the results to: '
+  named = gets.chomp
+  file=File.open(named,'w')
+  file.write(decoded.gsub('π','∏'))
+  file.close
+  puts "Saved to '#{named}'"
+end
+
+print 'Would you like us to print out the results to your screen?(y/n) '
+if gets.chomp == 'y'
+  puts decoded.gsub('π','∏')
+end

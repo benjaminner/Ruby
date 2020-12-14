@@ -165,10 +165,14 @@ aSCII.each do |k,v|
   end
 end
 
-
 def start()
-  print 'Enter the text here: '
-  text = gets.chomp
+  print 'Enter the absoulte file path here: '
+  name=gets.chomp
+
+
+  file = File.open(name)
+  text = file.readlines.join.gsub('∏','π')
+  file.close
   letters = {}
   for x in 0...text.length
     letters[text[x]] = 1 if not letters.include?(text[x])
@@ -195,7 +199,7 @@ def start()
       lettersKys.push(pair[0])
     end
   end
-  return [lettersKys,text]
+  return [lettersKys,text,name]
 end
 
 ###PROGRAM 2###
@@ -232,6 +236,7 @@ class String
 end
 ht = start()
 text = ht[1]
+name = ht[2]
 ht = ht[0]
 
 valuess = []
@@ -256,7 +261,7 @@ end
 leftovers = ''
 x = 0
 charbits = vals.scan(/.{1,7}/)
-chars = charbits.pop
+chars = charbits.pop if charbits.last.length != 7
 vals = ''
 charbits.each do |byte|
   vals+=(aSCII[byte])
@@ -271,4 +276,18 @@ valuess.each do |value|
   end
   x+=1
 end
-puts "#{values2.join}∏#{valuess.join(',')}∏#{vals}∏#{chars}"
+
+print 'Would you like to save the results to a file?(y/n) '
+if gets.chomp == 'y'
+  print 'Enter the filename you would like to save the results to: '
+  named = gets.chomp
+  file=File.open(named,'w')
+  file.write("#{values2.join}∏#{valuess.join(',')}∏#{vals}∏#{chars}")
+  file.close
+  puts "Saved to '#{named}'"
+end
+
+print 'Would you like us to print out the results to your screen?(y/n) '
+if gets.chomp == 'y'
+  puts "#{values2.join}∏#{valuess.join(',')}∏#{vals}∏#{chars}"
+end
