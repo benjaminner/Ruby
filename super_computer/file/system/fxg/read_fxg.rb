@@ -1,6 +1,7 @@
 def execute(path, *args)
   puts args
-  load "~/Desktop/Coding/Ruby/super_computer/file/system/fxg_vars.rb"
+  currentdir = `pwd`
+  load "#{currentdir.gsub("\n","")}/file/system/fxg/fxg_vars.rb"
   steps = [""]
   file = File.open(path)
   input = file.readline

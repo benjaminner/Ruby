@@ -214,12 +214,12 @@ if gets.chomp == 'y'
   print 'Enter the filename you would like to save the results to: '
   named = gets.chomp
   file=File.open(named,'w')
-  file.write(decoded.gsub('π','∏'))
+  file.write(decoded)
   file.close
   puts "Saved to '#{named}'"
 end
 
 print 'Would you like us to print out the results to your screen?(y/n) '
 if gets.chomp == 'y'
-  puts decoded.gsub('π','∏')
+  puts decoded
 end

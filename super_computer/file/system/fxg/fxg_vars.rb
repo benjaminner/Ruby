@@ -46,7 +46,7 @@ def frac(thing)
       tof
     end
   else
-    0
+    thing
   end
 end
 

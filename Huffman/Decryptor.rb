@@ -203,4 +203,4 @@ for x in 0...(numbers.length)
   end
 end
 
-puts decoded.gsub('π','∏')
+puts decoded

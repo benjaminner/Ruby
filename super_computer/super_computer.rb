@@ -1,18 +1,25 @@
 require 'json'
 require 'open-uri'
 require 'date'
-version = '1.3.2'
-versionName = 'pumpkin'
+version = '3.6.0'
+technicalVersion = '1.3.6.0.0'
+versionName = 'freedom'
 is_online = `curl -s https://benstrens.com` != ""
+doneupdate = false
 if is_online
   webversion = /[0-9]\.[0-9]\.[0-9]/.match(`curl -s https://benstrens.com/super_computer/`)
   webversion = /[0-9]\.[0-9]/.match(`curl -s https://benstrens.com/super_computer/`) if webversion == nil
   webversion = webversion[0]
   if webversion != version
     `curl -s https://benstrens.com/super_computer/super_computer.rb > super_computer.rb`
-    exec('ruby super_computer.rb')
+    doneupdate = true
+    if not File.exist?('file')
+      doneupdate = false
+      exec('ruby super_computer.rb')
+    end
   end
 end
+
 if not File.exist?('file')
   puts 'You need to set up the super_computer environment.'
   print 'Would you like to set up the folders and files?(y/n) '
@@ -25,14 +32,31 @@ end
 if not File.exist?('./file/system/prompt.txt')
   `cd file/system;touch prompt.txt;echo '*D>' > prompt.txt`
 end
-if not File.exist?('./file/system/alias.txt')
-  `cd file/system;touch prompt.txt`
-  file = File.open('./file/system/alias.txt','w')
-  file.puts '['
-  file.puts ''
-  file.puts ']'
-  file.close
+if not File.exist?('./file/system/dateformat.txt')
+  `cd file/system;touch dateformat.txt;echo 'mdy' > dateformat.txt`
 end
+if not File.exist?('./file/system/alias.txt')
+  `cd file/system;touch alias.txt;echo '{}' > alias.txt`
+end
+if not File.exist?('./file/system/documentation.txt')
+  `cd file/system;touch documentation.txt;curl -s https://benstrens.com/super_computer/README.txt > documentation.txt`
+end
+
+if is_online
+  webversion = /[0-9]\.[0-9]\.[0-9]/.match(`curl -s https://benstrens.com/super_computer/`)
+  webversion = /[0-9]\.[0-9]/.match(`curl -s https://benstrens.com/super_computer/`) if webversion == nil
+  webversion = webversion[0]
+  if webversion != version
+    `curl -s https://benstrens.com/super_computer/fxg_vars.rb > ./file/system/fxg/fxg_vars.rb`
+    `curl -s https://benstrens.com/super_computer/read_fxg.rb > ./file/system/fxg/read_fxg.rb`
+    `curl -s https://benstrens.com/super_computer/README.txt > ./file/system/documentation.txt`
+  end
+end
+
+if doneupdate
+  exec('ruby super_computer.rb')
+end
+
 dircur = "/file/user"
 puts "super_computer.rb"
 puts "scos #{versionName} (#{version})"
@@ -52,32 +76,42 @@ end
 def dt
   DateTime.now
 end
+file = File.open('./file/system/dateformat.txt')
+  dfmt = file.readline
+file.close
+badextentions = ['.','..','../','./']
 counts = 1
 toprintf = File.open('./file/system/prompt.txt')
 toprint = toprintf.readline.gsub("\n",'')
 toprintf.close
 aliases = []
 file = File.open('./file/system/alias.txt')
-  aliases = JSON.parse(file.readline)
+  freadedline = file.readline
+  mtc = /".*"=>".*"/
+  mtcr = mtc.match(freadedline)
+  if mtcr
+    freadedline.gsub!(mtcr[0],mtcr[0].gsub("=>",":"))
+  end
+  aliases = JSON.parse(freadedline)
 file.close
 loop do
   toprinted = dt.strftime(toprint).gsub('*D',dircur).gsub('*C',counts.to_s).gsub('*V',version)
   dirpath = ".#{dircur}/"
   print "#{toprinted} "
   input_4 = gets.chomp
-  input = input_4.downcase
+  inputig = input_4.downcase
 
-  break if input.include? "quit" or input == "" or input.include? "exit"
-
+  break if inputig.include? "quit" or inputig == "" or inputig.include? "exit"
+  input = inputig
   aliases.each do |aliass|
-    puts aliass
-    aliass = JSON.parse(aliass)
+    #aliass = JSON.parse(aliass)
     matcher = /(\A#{aliass[0]} )|( #{aliass[0]} )|( #{aliass[0]}\z)|(\A#{aliass[0]}\z)/
-    matched = matcher.match(input)
+    matched = matcher.match(inputig)
     if matched
-      input.gsub!(matched[0],matched[0].gsub(aliass[0],aliass[1]))
+      input = inputig.gsub(matched[0],matched[0].gsub(aliass[0],aliass[1]))
     end
   end
+
 
   if input.include? " "
     input_a = beforespace(input)
@@ -87,8 +121,12 @@ loop do
         input_3 = afterspace(input_2)
         if beforespace(input_2) == "create"
           unless dircur == "/file" or dircur.include?("/file/system")
-            Dir.mkdir("#{dirpath}#{input_3}")
-            puts "Made directory `#{input_3}` under `#{dircur}`."
+            unless File.exist?("#{dirpath}#{input_3}/")
+              Dir.mkdir("#{dirpath}#{input_3}")
+              puts "Made directory `#{input_3}` under `#{dircur}`."
+            else
+              puts "DirectoryError: Cannot create directories that already exist."
+            end
           else
             puts "DirectoryError: Cannot create or delete directories under `/file` or `/file/system`."
           end
@@ -116,10 +154,47 @@ loop do
             puts "DirectoryError: Cannot create or delete directories under `/file` or `/file/system`."
           end
         elsif beforespace(input_2) == "sw"
-          if File.exist?("#{dirpath}#{input_3}/")
+          if File.exist?("#{dirpath}#{input_3}/") and not input_3.include?('.')
             dircur += "/#{input_3}"
           else
             puts "DirectoryError: No directory `#{afterspace(input_2)}` under `#{dircur}`."
+          end
+        elsif beforespace(input_2) == "split"
+          unless dircur == "/file" or dircur.include?("/file/system")
+            if File.exist?("#{dirpath}#{input_3}/")
+              if Dir["#{dirpath}#{input_3}/*"] == []
+                Dir.delete("#{dirpath}#{input_3}")
+                puts "Deleted directory `#{input_3}`."
+              else
+                filesinside = Dir["#{dirpath}#{input_3}/*"].join("\n").gsub("#{dirpath}#{input_3}/",'').split("\n")
+                filesinside.each do |filer|
+                  `cd #{dirpath}#{input_3};mv #{filer} ../`
+                end
+                Dir.delete("#{dirpath}#{input_3}")
+              end
+            else
+              puts "DirectoryError: No directory `#{input_3}` under `#{dircur}`."
+            end
+          else
+            puts "DirectoryError: Cannot split directories under `/file` or `/file/system`."
+          end
+        elsif beforespace(input_2) == "move"
+          unless dircur == "/file" or dircur.include?("/file/system")
+            if input_3.include?(" ")
+              if File.exist?("#{dirpath}#{beforespace(input_3)}")
+                if File.exist?("#{dirpath}#{afterspace(input_3)}")
+                  `cd #{dirpath}; mv #{beforespace(input_3)} #{afterspace(input_3)}`
+                else
+                  puts "DirectoryError: No directory `#{afterspace(input_3)}` under `#{dircur}`."
+                end
+              else
+                puts "DirectoryError: No file or directory `#{beforespace(input_3)}` under `#{dircur}`."
+              end
+            else
+              puts "DirectoryError: Please specify both the file or directory you want to move and the directory you want to move it to."
+            end
+          else
+            puts "DirectoryError: Cannot move files or directories under `/file` or `/file/system`."
           end
         else
           puts "CommandError: No command '#{beforespace(input_2)}' for dir."
@@ -153,8 +228,12 @@ loop do
         case input_2
         when "create"
           unless dircur == "/file" or dircur.include?("/file/system")
-            File.new("#{dirpath}/#{input_3}",'w')
-            puts "Made file `#{input_3}` under `#{dircur}`."
+            unless File.exist?("#{dirpath}#{input_3}")
+              File.new("#{dirpath}/#{input_3}",'w')
+              puts "Made file `#{input_3}` under `#{dircur}`."
+            else
+              puts "FileError: Cannot create files that already exist."
+            end
           else
             puts "FileError: Cannot create, delete, or edit files under `/file` or `/file/system`."
           end
@@ -182,10 +261,16 @@ loop do
               loop do
                 print "#{input_3}> "
                 edit = gets.chomp
-                break if input.include? "quit" or input == "" or input.include? "exit"
+                break if edit.include? "quit" or edit == "" or edit.include? "exit"
                 if edit.include? " "
                   edit_2 = afterspace(edit)
                   edit = beforespace(edit)
+                  isnspace = false
+                  if edit_2.include? " "
+                    isnspace = true
+                    edit_3 = afterspace(edit_2)
+                    edit_4 = beforespace(edit_2)
+                  end
                   case edit
                   when "read"
                     if edit_2 == "all"
@@ -202,6 +287,28 @@ loop do
                   when "append"
                     $content.push("#{edit_2}\n")
                     updatefile("#{dirpath}#{input_3}")
+                  when "replace"
+                    if isnspace
+                      if edit_4.to_i < 0 or edit_4.to_i > $content.size-1
+                        puts "FileError: #{edit_4} is not a valid file line of #{input_3}"
+                      else
+                        $content[edit_2.to_i] = edit_3
+                        updatefile("#{dirpath}#{input_3}")
+                      end
+                    else
+                      puts "FileError: Please give both a line number and what you want to replace it with."
+                    end
+                  when "insert"
+                    if isnspace
+                      if edit_4.to_i < 0 or edit_4.to_i > $content.size-1
+                        puts "FileError: #{edit_4} is not a valid file line of #{input_3}"
+                      else
+                        $content.insert(edit_2.to_i+1,edit_3)
+                        updatefile("#{dirpath}#{input_3}")
+                      end
+                    else
+                      puts "FileError: Please give both a line number and what you want to replace it with."
+                    end
                   when "delete"
                     if edit_2 == "all"
                       $content = []
@@ -294,9 +401,25 @@ loop do
       elsif input_2 == "date"
         puts dt.strftime('%A, %B %d, %Y')
       elsif input_2 == "date short"
-        puts dt.strftime('%Y/%m/%d')
+        dd = dfmt.gsub('y','Y').split('')
+        puts dt.strftime("%#{dd[0]}/%#{dd[1]}/%#{dd[2]}")
       elsif input_2 == "current prompt"
         puts toprint
+      elsif input_2 == "date format"
+        file = File.open('./file/system/dateformat.txt')
+           dfmt = file.readline
+        file.close
+        puts dfmt
+      elsif input_2.include?("date format ") and input_2 != "date format "
+        idc = input_2.split("date format ")[1]
+        if (idc.count("m") == idc.count("d") and idc.count("d") == idc.count("y") and idc.count("y") == 1) and idc.length == 3
+          dfmt = idc
+          file = File.open('./file/system/dateformat.txt','w')
+            file.write(dfmt)
+          file.close
+        else
+          puts "SystemError: '#{idc}' is not a valid date format."
+        end
       elsif beforespace(input_2) == "prompt" && input_2.include?(' ')
         file = File.open("./file/system/prompt.txt",'w')
         file.write(afterspace(afterspace(input_4)))
@@ -305,21 +428,52 @@ loop do
       elsif beforespace(input_2) == "alias"
         array = afterspace(input_2).split('=')
         file = File.open('./file/system/alias.txt')
-        filelines = file.readlines
+        freadedline = file.readline
+        mtc = /".*"=>".*"/
+        mtcr = mtc.match(freadedline)
+        if mtcr
+          freadedline.gsub!(mtcr[0],mtcr[0].gsub("=>",":"))
+        end
+        fileline = JSON.parse(freadedline)
         file.close
         file = File.open('./file/system/alias.txt','w')
-        file.write(filelines.insert(filelines.length-1,array.to_s))
+        fileline[array[0]]=array[1]
+        file.write(fileline)
         file.close
-        aliases += array
+        aliases[array[0]]=array[1]
       elsif input_2 == "list aliases"
         aliases.each do |aliaso|
-          puts JSON.parse(aliaso).join('=>')
+          puts aliaso.join('=>')
+        end
+      elsif input_2 != "delete alias " and input_2.include?("delete alias ")
+        dreq = afterspace(inputig).split("delete alias ")[1]
+        if aliases.keys.include?(dreq)
+          print 'Are you sure? This action cannot be undone! (y/n) '
+          if gets.chomp == 'y'
+            file = File.open('./file/system/alias.txt')
+            freadedline = file.readline
+            mtc = /".*"=>".*"/
+            mtcr = mtc.match(freadedline)
+            if mtcr
+              freadedline.gsub!(mtcr[0],mtcr[0].gsub("=>",":"))
+            end
+            fileline = JSON.parse(freadedline)
+            file.close
+            file = File.open('./file/system/alias.txt','w')
+            fileline.delete(dreq)
+            file.write(fileline)
+            file.close
+            aliases.delete(dreq)
+          end
+        else
+          puts "SystemError: No alias '#{dreq}' exists."
         end
       elsif input_2 == "delete aliases"
         print 'Are you sure? This action cannot be undone! (y/n) '
         if gets.chomp == 'y'
-          aliases = []
+          aliases = {}
           file = File.open('./file/system/alias.txt','w')
+          file.write("{}")
           file.close
         end
       else
@@ -329,7 +483,12 @@ loop do
       puts "CommandError: Invalid command: '#{input_a}'"
     end
   elsif input == "help" or input == "documentation"
-    puts "Check out our documentation @ 'https://benstrens.com/super_computer/README.txt'!"
+    print "You can visit https://benstrens.com/super_computer/README.txt for the documentation. Would you like to print it to screen (it is VERY long)? (y/n) "
+    if gets.chomp == "y"
+      file = File.open('./file/system/documentation.txt')
+        puts file.readlines
+      file.close
+    end
   elsif input == "dir" or input == "file" or input == "system"
     puts "CommandError: No command for #{input} given."
   else

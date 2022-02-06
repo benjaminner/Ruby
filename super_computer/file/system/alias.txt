@@ -1,1 +1,1 @@
-["[\"cd\", \"dir sw\"]", "[]\n"]
+{"cd"=>"dir sw", "ls"=>"dir list"}

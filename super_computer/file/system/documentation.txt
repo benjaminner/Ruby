@@ -1,0 +1,109 @@
+Documentation for super_computer.rb freedom (3.4.2)
+
+New in scos freedom:
+
+3.0:
+-Ladies and gents, it's finally here. ALIASES!
+Now you can use these to make super_computer feel more like bash by adding in your own commands!
+This is the only major new feature in this major release, but it's a big one.
+*IMPORTANT* Please, as soon as you get the new update, run the commands 'system delete aliases' to clear the experimental aliases you may have tinkered with.
+Documentation for aliases are down below.
+3.1:
+-Added 'date format' to the system CommandClass (see below for description).
+3.2:
+-The 'help' command prints the documentation to screen after prompting.
+3.3:
+-Added new command: 'system delete alias', which you put the name of the alias you want to delete after (see below for description).
+3.4:
+-Added file:edit 'replace'. You use it by listing a line number and string after, and the given line will be replaced by that string.
+-Added file:edit 'insert'. You use it by, like 'replace', listing a line number and string after. The line after the given line will become the given string. Everything else will
+be pushed down a row.
+
+Bugfixes in scos freedom:
+
+-Bugfix 3.0.2.1: Creating new aliases would cause a crash if done after deleting aliases.
+-Bugfix 3.0.3.1: Trying to create a directory that already exists causes a crash.
+-Bugfix 3.0.3.2: Trying to create a file that already exists causes a crash.
+-Bugfix 3.1.0.1: When the alias.txt file was missing in /file/system, it would try to recreate prompt.txt, then append text to a nonexistent file, causing a crash.
+-Bugfix 3.2.0.1: When updating and creating the file folder at the same time (usually the first installation) the files would be updated and created in the wrong order,
+which caused some files to be missing.
+-Bugfix 3.3.0.1: Deleting all aliases would set the 'aliases' variable to an empty array, instead of an empty hash.
+-Bugfix 3.3.0.2: After creating an alias that already existed, it would update in alias.txt as normal, but when you asked for the list of aliases it included both the old one and
+the new one. Restarting super_computer fixed the issue.
+-Bugfix 3.4.1.1: The documentation wouldn't update because it was trying to stick it in a file called 'documentation.rb', which didn't exist.
+-Bugfix 3.4.1.2: Trying to run an fxg program would cause a crash because I was trying to load a file from a path that only existed on my computer. I didn't notice this before,
+because it worked fine on my computer, but running it on my mom's computer caused a crash.
+-Bugfix 3.4.2.1: The documentation and fxg files wouldn't update because of a bug in the self-updating part of the code.
+
+Commands:
+
+Instead of commands, super_computer has CommandClasses. Currently, there are 3, file, dir, and system.
+To make a command, type the name of the CommandClass and then what you want to do.
+The list of commands are below next to their unix counterpart or description. All caps signifies a variable of the given type.
+
+
+
+super_computer command | unix command
+-----------------------------------------
+dir sw FOLDERNAME      | cd FOLDERNAME
+                       |
+dir parent             | cd ..
+                       |
+dir list               | ls
+                       |
+dir cur                | pwd
+                       |
+dir create FOLDERNAME  | mkdir FOLDERNAME
+                       |
+dir delete FOLDERNAME  | rmdir FOLDERNAME
+------------------------------------------
+file create FILENAME   | touch FILENAME
+                       |
+file delete FILENAME   | rm FILENAME
+                       |
+file read FILENAME     | more FILENAME
+                       |
+file edit FILENAME     | N/A No unix counterpart
+                       |
+Once you type 'file edit FILENAME', it puts you into a new prompt that has its own set of rules.
+                       |
+                       |
+file:edit command      | description
+-------------------------------------------
+append STRING          | adds a new line to the file that contains STRING.
+                       |
+length STRINGorNUMBER  | If you type 'length all' it gives you the length in lines of the file. If length is followed by 'words', it gives the approximent word count of the file.
+                       | 'chars' gives the character count of the file.
+                       | If you give a number within the length of the file, it gives you the character count of that line of the file.
+                       |
+read STRINGorNUMBER    | These two work the same way, if you type 'all' after read or delete, it will read the entire file, or delete the content of the entire file.
+delete STRINGorNUMBER  | If a number is given, that line will be printed or deleted.
+
+
+super_computer command | description
+--------------------------------------------
+                       |
+system date            | Returns current date, long form. (i.e. Saturday, November 21, 2020)
+system date short      | Returns current date, short form using yy/mm/dd. (i.e. 2020/11/21)
+system date format     | Returns the current date format, as 3 lowercase letters. d is Day, m is Month, and y is Year.
+system date format     | STRING must be 3 letters long, and only consist of 'm','d', and 'y'. Same rules as above.
+STRING                 |
+                       |
+system time            | Returns current time: 12hr, with meridean marker. (i.e. 8:00:00 PM)
+system time 24h        | Returns current time: 24 hr. (i.e. 20:00:00)
+system time zone       | Returns the number of hours from UTC plus the time zone name.. (i.e. -08:00 PST)
+                       |
+                       |
+system prompt STRING   | This follows the rules of strftime: https://ruby-doc.org/stdlib-2.6.1/libdoc/date/rdoc/DateTime.html#method-i-strftime.
+                       | Along with that, '*D' will be replaced with the current directory, and '*C' with the count of the number of commands.
+                       | '*V' is replaced by the version number.
+system current prompt  | Displays the current prompt before the substitutions.
+                       |
+                       |
+system alias STRING=   | This allows you to set an alias, where the first string is an alias for the second string.
+             STRING    |
+system list aliases    | This allows you to see the aliases that are active. Each line has a different alias-meaning pair, being seperated by a '=>'
+system delete alias    | This allows you to delete a singular alias with the key that is specified in STRING. You will be prompted with 'are you sure', and
+STRING                 | returning 'y' deletes given alias.
+system delete aliases  | This allows you to delete all the aliases you have saved. You will be prompted with 'Are you sure? This action cannot be undone! (y/n) ', and returning 'y'
+                       | will delete all aliases.

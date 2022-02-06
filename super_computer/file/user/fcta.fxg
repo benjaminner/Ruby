@@ -1,1 +1,1 @@
-?->D:0->E:0->F:l0:E+1->E:f(D/E)=0=>F+E->F:0:E<D=>g0:F,#fcta#
+?->D:0->E:D->F:l0:F*(D-E)->F:E+1->E:E<D=>g0:i(F/D),#fcta#

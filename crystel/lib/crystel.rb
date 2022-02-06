@@ -125,7 +125,7 @@ class String
   end
   def allof(small, big)
     at = []
-    
+
   end
   def del(*to_delete)
     alslf = self
@@ -137,7 +137,7 @@ class String
   def join(str)
     self.split('').join(str)
   end
-end 
+end
 
 def expect(yesOrNo, test_name="Test", raise_error=false)
   puts "#{test_name} Passed: #{yesOrNo}" if yesOrNo
@@ -156,6 +156,8 @@ def range(num1, num2=0)
     num1...num2
   end
 end
+
+#deckcrystel
 
 class Deck
   attr_accessor :position
@@ -235,10 +237,6 @@ class EukerDeck < Deck
     @groups = []
     ["c", "h", "s", "d"].each do |suit|
       [9, 10, "a", "j", "q", "k"].each do |card|
-      for card in 9..10
-        @position.push("#{card}#{suit}")
-      end
-      ["a", "j", "q", "k"].each do |card|
         @position.push("#{card}#{suit}")
       end
     end
@@ -264,4 +262,57 @@ class ExplodingDeck < Deck
     end
     shuffle
   end
-end end
+  def deal(hands)
+    deal_in
+    @groups = []
+    @position.delete('def')
+    @position.delete('exp')
+    for x in 0...hands
+      @groups.push([])
+      @groups[x].push('def')
+      for y in 0...7
+        @groups[x].push(@position.shift)
+      end
+    end
+    for x in 0...(6-hands)
+     @position.insert(rand(@position.size), 'def')
+    end
+    for x in 0...(hands-1)
+    @position.insert(rand(@position.size), 'exp')
+    end
+    self
+  end
+end
+class CribbageDeck < Deck
+  def deal(num_players)
+    case num_players
+    when 2
+      for x in 0...3
+        if (1...3).include?(x)
+          x = top(6)
+          (0...6).each do
+            @position.shift
+          end
+        else
+          x = []
+        end
+        @groups.push(x)
+      end
+    when 3
+      for x in 0...4
+        if (1...3).include?(x)
+          x = top(5)
+          (0...5).each do
+            @position.shift
+          end
+        else
+          x = [@position[0]]
+        end
+        @groups.push(x)
+      end
+    end
+    self
+  end
+end
+class CribDeck < CribbageDeck
+end
